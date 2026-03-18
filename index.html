@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Game Picker PRO 🎰</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: linear-gradient(135deg,#0f172a,#312e81,#7c3aed);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  padding: 25px;
+  border-radius: 20px;
+  width: 360px;
+  text-align: center;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg,#22c55e,#4ade80);
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+input, select {
+  width: 100%;
+  margin: 5px 0;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+}
+
+.slot {
+  margin-top: 15px;
+  height: 50px;
+}
+
+img {
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>🎰 Game Picker PRO</h1>
+
+  <input id="min" type="number" placeholder="Cena od">
+  <input id="max" type="number" placeholder="Cena do">
+
+  <select id="genre">
+    <option value="All">Wszystkie gatunki</option>
+    <option value="RPG">RPG</option>
+    <option value="FPS">FPS</option>
+    <option value="Adventure">Adventure</option>
+    <option value="Strategy">Strategy</option>
+    <option value="Multiplayer">Multiplayer</option>
+  </select>
+
+  <button onclick="spin()">🎲 LOSUJ</button>
+
+  <div id="slot" class="slot"></div>
+  <div id="result"></div>
+</div>
+
+<script>
+const gameMap = {
+  "The Witcher 3": { id:292030, genre:"RPG" },
+  "Cyberpunk 2077": { id:1091500, genre:"RPG" },
+  "GTA V": { id:271590, genre:"Adventure" },
+  "Red Dead Redemption 2": { id:1174180, genre:"Adventure" },
+  "Elden Ring": { id:1245620, genre:"RPG" },
+  "Hades": { id:1145360, genre:"RPG" },
+  "Hollow Knight": { id:367520, genre:"Adventure" },
+  "Stardew Valley": { id:413150, genre:"Strategy" },
+  "Terraria": { id:105600, genre:"Adventure" },
+  "Subnautica": { id:264710, genre:"Adventure" },
+  "No Man's Sky": { id:275850, genre:"Adventure" },
+  "Skyrim": { id:72850, genre:"RPG" },
+  "Fallout 4": { id:377160, genre:"RPG" },
+  "DOOM Eternal": { id:782330, genre:"FPS" },
+  "Dead by Daylight": { id:381210, genre:"Multiplayer" },
+  "Rust": { id:252490, genre:"Multiplayer" },
+  "Valheim": { id:892970, genre:"Multiplayer" },
+  "Among Us": { id:945360, genre:"Multiplayer" }
+};
+
+const realGames = Object.keys(gameMap);
+
+const games = Array.from({length:350}, (_,i)=>{
+  const name = realGames[i % realGames.length];
+  const data = gameMap[name];
+
+  return {
+    name,
+    genre: data.genre,
+    price: Math.floor(Math.random()*200)+20,
+    img: `https://cdn.cloudflare.steamstatic.com/steam/apps/${data.id}/header.jpg`
+  };
+});
+
+const slot = document.getElementById("slot");
+const result = document.getElementById("result");
+
+function spin(){
+  const min = Number(document.getElementById("min").value || 0);
+  const max = Number(document.getElementById("max").value || 999);
+  const genre = document.getElementById("genre").value;
+
+  const filtered = games.filter(g =>
+    g.price >= min && g.price <= max &&
+    (genre === "All" || g.genre === genre)
+  );
+
+  if(!filtered.length){
+    slot.innerHTML = "❌ Brak gier";
+    return;
+  }
+
+  let i=0;
+  const interval = setInterval(()=>{
+    const rand = filtered[Math.floor(Math.random()*filtered.length)];
+    slot.innerHTML = "🎮 " + rand.name;
+    i++;
+
+    if(i>20){
+      clearInterval(interval);
+      showResult(rand);
+    }
+  },100);
+}
+
+function showResult(game){
+  result.innerHTML = `
+    <h2>${game.name}</h2>
+    <p>🎮 ${game.genre}</p>
+    <p>💰 ~${game.price} zł (orientacyjna)</p>
+    <img src="${game.img}">
+  `;
+}
+</script>
+
+</body>
+</html>
